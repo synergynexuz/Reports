@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NSR Report Display</title>
+  <style>
+    body {
+      font-family: 'Open Sans', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #ffffff;
+      color: #333333;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 10px;
+    }
+    #loadingMessage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding-top: 100px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0960fa;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #imageContainer {
+      display: none;
+    }
+
+    img {
+      max-width: 100%;
+      margin-bottom: 20px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Not So Rare: Earth – Report Images</h1>
+
+  <div id="loadingMessage">
+    <div class="spinner"></div>
+    <div>Loading report images...</div>
+  </div>
+
+  <div id="imageContainer">
+   
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page2.jpg" alt="NSR Image 2"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page3.jpg" alt="NSR Image 3"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page4.jpg" alt="NSR Image 4"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page5.jpg" alt="NSR Image 5"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page6.jpg" alt="NSR Image 6"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page7.jpg" alt="NSR Image 7"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page8.jpg" alt="NSR Image 8"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page9.jpg" alt="NSR Image 9"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page10.jpg" alt="NSR Image 10"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+    <img src="https://synergynexuz.github.io/Reports/Images/NSR_page11.jpg" alt="NSR Image 11"> <img src="https://synergynexuz.github.io/Reports/Images/nsr_img1.jpg" alt="NSR Image 1">
+   
+    <!-- Add more images as needed -->
+  </div>
+
+  <script>
+    window.addEventListener('load', function () {
+      document.getElementById('loadingMessage').style.display = 'none';
+      document.getElementById('imageContainer').style.display = 'block';
+    });
+  </script>
+
+</body>
+</html>
