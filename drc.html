@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRC Focus Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Open Sans', Arial, sans-serif;
+      background-color: #ffffff;
+      color: #333333;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- DRC Report Container -->
+  <div class="drc-report-container" style="padding: 15px 0; margin: 0 auto; max-width: 100%;">
+
+    <!-- Header -->
+    <h1 style="font-size: 18px; font-weight: 500; margin: 0; line-height: 1.3; color: #1a1a1a; border-bottom: 1px solid #eaeaea; padding-bottom: 5px;">
+      DRC Crackdown of Foreign Illegal Mining Operations - 01 March 2025
+    </h1>
+
+    <!-- Button Container -->
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 0; align-items: center;">
+
+      <!-- Read Article Button -->
+      <a href="#" onclick="window.open('https://synergynexuz.github.io/Reports/drc_report.html','DRCArticle','width=800,height=800,resizable=yes,scrollbars=yes'); return false;"
+        style="font-size: 16px; font-weight: 500; padding: 0 16px; height: 42px; line-height: 42px; background-color: #0960fa; color: white; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);">
+        📄 Read Article
+      </a>
+
+      <!-- Podcast Button -->
+      <button onclick="toggleDRCAudioPlayer();"
+        style="font-size: 16px; font-weight: 500; padding: 0 16px; height: 42px; line-height: 42px; background: linear-gradient(145deg, #f0f0f0, #dcdcdc); color: #111; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);">
+        🎧 Listen to Podcast
+      </button>
+
+      <!-- Audio Player Wrapper (initially hidden) -->
+      <div id="drcAudioWrapper" style="display: none; margin-left: 2px; position: relative; background-color: #f9f9f9; border-radius: 6px; padding: 4px 12px; width: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); height: 32px;">
+
+        <!-- Close Button -->
+        <button onclick="closeDRCAudioPlayer()" style="position: absolute; top: 5px; right: 4px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666; z-index: 20;">
+          ×
+        </button>
+
+        <!-- Audio Element -->
+        <audio id="drcAudio" controls controlsList="nodownload" preload="none" style="height: 32px;">
+          <source src="https://synergynexuz.github.io/audio/drc_audio.mp3" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    function toggleDRCAudioPlayer() {
+      const wrapper = document.getElementById('drcAudioWrapper');
+      const audio = document.getElementById('drcAudio');
+
+      if (wrapper.style.display === 'none') {
+        wrapper.style.display = 'inline-block';
+        audio.load();
+        setTimeout(() => {
+          audio.play().catch(e => console.log("Autoplay blocked:", e));
+        }, 100);
+      } else {
+        audio.pause();
+        wrapper.style.display = 'none';
+      }
+    }
+
+    function closeDRCAudioPlayer() {
+      const wrapper = document.getElementById('drcAudioWrapper');
+      const audio = document.getElementById('drcAudio');
+      audio.pause();
+      audio.currentTime = 0;
+      wrapper.style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
