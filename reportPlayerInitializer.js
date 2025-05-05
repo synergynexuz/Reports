@@ -336,7 +336,7 @@
     }
   
     // --- Initialization Code (run when the page loads) ---
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', () => {
       // Find all elements that represent a report/media block
       const reportBlocks = document.querySelectorAll('.report-block'); // Target the main container class
   
