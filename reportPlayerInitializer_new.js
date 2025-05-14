@@ -7,10 +7,6 @@
 
     // --- Helper function for time formatting ---
     function formatTime(seconds) {
-      // Ensure time is a number and not negative
-      if (isNaN(seconds) || seconds < 0) {
-          return '0:00';
-      }
       const minutes = Math.floor(seconds / 60);
       seconds = Math.floor(seconds % 60);
       return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -90,16 +86,14 @@
         const audioPlayBtn = containerElement.querySelector('.js-audio-play-pause-btn');
         const audioProgressBar = containerElement.querySelector('.js-audio-progress-bar');
         const audioTimeDisplay = containerElement.querySelector('.js-audio-time-display');
-        const audioCloseBtn = containerElement.querySelector('.js-audio-close-btn');
         const audioProgressContainer = containerElement.querySelector('.js-audio-progress'); // Need this for seeking
 
-        if (audio && audioWrapper && listenBtn && audioPlayBtn && audioProgressBar && audioTimeDisplay && audioCloseBtn && audioProgressContainer) {
+        if (audio && audioWrapper && listenBtn && audioPlayBtn && audioProgressBar && audioTimeDisplay && audioProgressContainer) {
           // Add this audio element to the global list
           allMediaElements.push({ element: audio, type: 'audio' });
 
-          // Set the audio source
           audio.src = audioSrc;
-          audio.preload = 'auto'; // Ensure preload is set to auto or metadata
+          audio.load(); // Start loading metadata
 
           listenBtn.style.display = 'inline-flex'; // Show the listen button
 
@@ -118,7 +112,8 @@
 
               if (audioWrapper.classList.contains('visible')) {
                 // If player is already visible, clicking button closes it
-                closeAudioPlayer(); // Use the defined close function
+                // audioWrapper.classList.remove('visible'); // This part of the logic is removed
+                 audioWrapper.classList.remove('visible');
 
               } else {
                 // Before showing and playing, pause ALL other media on the page
@@ -127,19 +122,27 @@
                 // Show the audio player wrapper
                 audioWrapper.classList.add('visible');
 
-                // Attempt to play the audio when the player is shown
-                // The play promise handles cases where loading is still in progress
-                 audio.play().then(() => {
-                   audioPlayBtn.textContent = '⏸'; // Change button to pause symbol on successful play
-                   audioPlayBtn.classList.add('playing'); // Add playing class for styling
-                 }).catch(e => {
-                   console.error("Audio play failed after showing player:", e);
-                   // Handle play failure (e.g., show error message, keep button as play)
-                   audioPlayBtn.textContent = '▶';
-                   audioPlayBtn.classList.remove('playing');
-                   // Optionally display an error message to the user in the time display
-                   if (audioTimeDisplay) audioTimeDisplay.textContent = "Playback failed.";
-                 });
+                // Wait for audio to be ready before playing and setting button state
+                // Check readyState first in case metadata is already loaded
+                if (audio.readyState >= 1) { // HAVE_METADATA = 1
+                     audio.play().then(() => {
+                       audioPlayBtn.textContent = '⏸';
+                       audioPlayBtn.classList.add('playing');
+                     }).catch(e => console.error("Audio play failed:", e));
+                } else {
+                    // If metadata not loaded, wait for it or canplay
+                    const playHandler = function() {
+                         audio.play().then(() => {
+                           audioPlayBtn.textContent = '⏸';
+                           audioPlayBtn.classList.add('playing');
+                         }).catch(e => console.error("Audio play failed:", e));
+                         // Clean up listeners after successful play attempt
+                         audio.removeEventListener('loadedmetadata', playHandler);
+                         audio.removeEventListener('canplay', playHandler);
+                    };
+                    audio.addEventListener('loadedmetadata', playHandler);
+                    audio.addEventListener('canplay', playHandler); // canplay might fire before loadedmetadata
+                }
               }
           });
 
@@ -152,13 +155,7 @@
               audio.play().then(() => {
                   audioPlayBtn.textContent = '⏸';
                   audioPlayBtn.classList.add('playing');
-              }).catch(e => {
-                 console.error("Audio play failed:", e);
-                 // Handle play failure
-                 audioPlayBtn.textContent = '▶';
-                 audioPlayBtn.classList.remove('playing');
-                 if (audioTimeDisplay) audioTimeDisplay.textContent = "Playback failed.";
-              });
+              }).catch(e => console.error("Audio play failed:", e));
             } else {
               audio.pause();
               audioPlayBtn.textContent = '▶';
@@ -166,9 +163,7 @@
             }
           });
 
-          // --- New Functionality: Audio Progress Bar and Seeking ---
-
-          // Update time display and progress bar as audio plays
+          // Audio time update
           audio.addEventListener('timeupdate', () => {
             if (!isNaN(audio.duration)) { // Check if duration is available
                const progress = (audio.currentTime / audio.duration) * 100;
@@ -177,9 +172,8 @@
             }
           });
 
-          // Update total duration when metadata is loaded
+          // Audio metadata loaded
           audio.addEventListener('loadedmetadata', () => {
-            console.log("Audio metadata loaded. Duration:", audio.duration); // Log duration
             if (!isNaN(audio.duration)) {
                audioTimeDisplay.textContent = `0:00 / ${formatTime(audio.duration)}`;
             } else {
@@ -208,158 +202,14 @@
             }
           });
 
-          // Audio error handling
-           audio.addEventListener('error', (e) => {
-               console.error("Audio error:", audio.error); // Log the error object
-               let errorMessage = "An audio error occurred.";
-               switch (e.target.error.code) {
-                   case MediaError.MEDIA_ERR_ABORTED:
-                       errorMessage = 'Audio playback aborted.';
-                       break;
-                   case MediaError.MEDIA_ERR_NETWORK:
-                       errorMessage = 'A network error caused the audio download to fail.';
-                       break;
-                   case MediaError.MEDIA_ERR_DECODE:
-                       errorMessage = 'The audio playback was aborted due to a corruption problem or because the audio used features your browser did not support.';
-                       break;
-                   case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                       errorMessage = 'The audio could not be loaded, either because the server or network failed or because the format is not supported.';
-                       break;
-                   default:
-                       errorMessage = 'An unknown audio error occurred.';
-                       break;
-               }
-               console.error(errorMessage); // Log a user-friendly error message
-               // Optionally display an error message to the user
-               if (audioTimeDisplay) audioTimeDisplay.textContent = "Error loading audio.";
-               if (audioPlayBtn) audioPlayBtn.textContent = "Error"; // Change button text
-               if (audioPlayBtn) audioPlayBtn.classList.remove('playing'); // Remove playing class
-           });
-
-
-          // Handle seeking by clicking on progress bar
+          // Audio seeking by clicking on progress bar
           audioProgressContainer.addEventListener('click', (e) => {
-              if (!isNaN(audio.duration)) { // Ensure duration is valid before seeking
+              if (!isNaN(audio.duration)) {
                 const rect = audioProgressContainer.getBoundingClientRect();
                 const pos = (e.clientX - rect.left) / rect.width;
                 audio.currentTime = pos * audio.duration;
-              } else {
-                 console.warn("Audio duration not available yet. Cannot seek.");
               }
           });
-
-          // Handle seeking when progress bar is dragged (more complex but better UX)
-          let isDragging = false; // Variable to track if dragging is active
-
-          // Mouse events for desktop dragging
-          audioProgressContainer.addEventListener('mousedown', (e) => {
-               if (!isNaN(audio.duration)) { // Ensure duration is valid before starting drag/seek
-                  isDragging = true;
-                   // Prevent text selection while dragging
-                  e.preventDefault();
-                  // Calculate position relative to the start of the container
-                  const containerRect = audioProgressContainer.getBoundingClientRect();
-                  const mouseX = e.clientX - containerRect.left;
-                  const containerWidth = audioProgressContainer.offsetWidth;
-                  const seekTime = (mouseX / containerWidth) * audio.duration;
-
-                   // Update time immediately on mousedown
-                   if (seekTime >= 0 && seekTime <= audio.duration && !isNaN(seekTime)) {
-                      audio.currentTime = seekTime;
-                   }
-               } else {
-                  console.warn("Audio duration not available yet. Cannot seek.");
-               }
-          });
-
-          // Use document to ensure drag continues even if mouse leaves the progress bar
-          document.addEventListener('mousemove', (e) => {
-              if (isDragging) {
-                   if (isNaN(audio.duration)) return; // Ensure duration is valid
-
-                   // Calculate position relative to the start of the container
-                  const containerRect = audioProgressContainer.getBoundingClientRect();
-                  const mouseX = e.clientX - containerRect.left;
-                  const containerWidth = audioProgressContainer.offsetWidth;
-                  const seekTime = (mouseX / containerWidth) * audio.duration;
-
-                  // Update time only if within bounds and valid
-                  if (seekTime >= 0 && seekTime <= audio.duration && !isNaN(seekTime)) {
-                       audio.currentTime = seekTime;
-                       // Manually update progress bar width during drag for smoother visual feedback
-                       audioProgressBar.style.width = (seekTime / audio.duration) * 100 + '%';
-                        // Optionally update time display during drag
-                       // audioTimeDisplay.textContent = `${formatTime(seekTime)} / ${formatTime(audio.duration)}`;
-                  }
-              }
-          });
-
-          document.addEventListener('mouseup', () => {
-              isDragging = false;
-          });
-
-
-           // --- Mobile Touch Event Listeners for dragging ---
-          audioProgressContainer.addEventListener('touchstart', (e) => {
-               if (!isNaN(audio.duration)) { // Ensure duration is valid
-                  isDragging = true;
-                   // Prevent default scrolling/zooming
-                   e.preventDefault();
-                   // Handle touch position immediately on touchstart
-                  const touchPosition = e.touches[0].clientX - e.target.getBoundingClientRect().left;
-                  const containerWidth = audioProgressContainer.offsetWidth;
-                  const seekTime = (touchPosition / containerWidth) * audio.duration;
-                   if (seekTime >= 0 && seekTime <= audio.duration && !isNaN(seekTime)) {
-                      audio.currentTime = seekTime;
-                   }
-               } else {
-                  console.warn("Audio duration not available yet. Cannot seek.");
-               }
-          });
-
-          document.addEventListener('touchmove', (e) => {
-              if (isDragging) {
-                   if (isNaN(audio.duration)) return; // Ensure duration is valid
-
-                   // Prevent default scrolling/zooming
-                  e.preventDefault();
-                  const containerRect = audioProgressContainer.getBoundingClientRect();
-                  const touchX = e.touches[0].clientX - containerRect.left;
-                  const containerWidth = audioProgressContainer.offsetWidth;
-                  const seekTime = (touchX / containerWidth) * audio.duration;
-
-                   if (seekTime >= 0 && seekTime <= audio.duration && !isNaN(seekTime)) {
-                       audio.currentTime = seekTime;
-                       // Manually update progress bar width during drag for smoother visual feedback
-                       audioProgressBar.style.width = (seekTime / audio.duration) * 100 + '%';
-                        // Optionally update time display during drag
-                       // audioTimeDisplay.textContent = `${formatTime(seekTime)} / ${formatTime(audio.duration)}`;
-                   }
-              }
-          });
-
-          document.addEventListener('touchend', () => {
-              isDragging = false;
-          });
-
-          // --- End New Functionality ---
-
-
-          // Close audio player handler
-          const closeAudioPlayer = () => { // Define close function within scope
-              audioWrapper.classList.remove('visible');
-              audio.pause();
-              audioPlayBtn.textContent = '▶';
-              audioPlayBtn.classList.remove('playing');
-              audio.currentTime = 0;
-              audioProgressBar.style.width = '0%';
-               if (!isNaN(audio.duration)) {
-                  audioTimeDisplay.textContent = `0:00 / ${formatTime(audio.duration)}`;
-              } else {
-                 audioTimeDisplay.textContent = `0:00 / --:--`;
-              }
-          };
-          audioCloseBtn.addEventListener('click', closeAudioPlayer);
 
 
         } else {
@@ -378,10 +228,9 @@
           const video = containerElement.querySelector('.js-video-element');
           const videoWrapper = containerElement.querySelector('.js-video-wrapper');
           const watchBtn = containerElement.querySelector('.js-watch-btn');
-          const videoCloseBtn = containerElement.querySelector('.js-video-close-btn');
           // Get other video control elements here if using custom controls
 
-          if (video && videoWrapper && watchBtn && videoCloseBtn) {
+          if (video && videoWrapper && watchBtn) {
               // Add this video element to the global list
               allMediaElements.push({ element: video, type: 'video' });
 
@@ -389,7 +238,7 @@
               if (videoPoster) {
                   video.poster = videoPoster;
               }
-              video.preload = 'auto'; // Ensure preload is set
+              // video.load(); // Uncomment if you want to preload metadata
 
               watchBtn.style.display = 'inline-flex'; // Show the watch button
 
@@ -411,7 +260,8 @@
 
                   if (videoWrapper.classList.contains('visible')) {
                     // If player is already visible, clicking button closes it
-                     closeVideoPlayer(); // Use the defined close function
+                    // videoWrapper.classList.remove('visible'); // This part of the logic is removed
+                    videoWrapper.classList.remove('visible');
 
                   } else {
                      // Before showing and playing, pause ALL other media
@@ -427,15 +277,6 @@
                   }
               });
 
-               // Close video player handler
-               const closeVideoPlayer = () => { // Define close function within scope
-                   videoWrapper.classList.remove('visible');
-                   video.pause(); // Pause video on close
-                   // Reset video current time? Depends on desired behavior, maybe to 0
-                   video.currentTime = 0; // Reset to beginning
-                   // If using custom video controls, update their state here
-               };
-              videoCloseBtn.addEventListener('click', closeVideoPlayer);
 
               // Add other event listeners for video if using custom controls (timeupdate, play/pause, ended, etc.)
               // video.addEventListener('timeupdate', ...)
@@ -481,4 +322,3 @@
     });
 
   })(); // End of IIFE
-
