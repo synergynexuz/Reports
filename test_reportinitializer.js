@@ -108,8 +108,11 @@
               }
 
               if (audioWrapper.classList.contains('visible')) {
-                // Player is already visible - no action needed
-                // We no longer toggle off the player when clicked again
+                // Player is already visible - toggle it off and pause the audio
+                audio.pause();
+                audioPlayBtn.textContent = '▶';
+                audioPlayBtn.classList.remove('playing');
+                audioWrapper.classList.remove('visible');
               } else {
                 // Before showing and playing, pause ALL other media on the page
                 pauseOtherMedia(audio);
@@ -253,8 +256,9 @@
                    }
 
                   if (videoWrapper.classList.contains('visible')) {
-                    // Player is already visible - no action needed
-                    // We no longer toggle off the player when clicked again
+                    // Player is already visible - toggle it off and pause the video
+                    video.pause();
+                    videoWrapper.classList.remove('visible');
                   } else {
                      // Before showing and playing, pause ALL other media
                      pauseOtherMedia(video);
