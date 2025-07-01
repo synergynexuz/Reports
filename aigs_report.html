@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DI Report Display</title>
+    <style>
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            margin: 0;
+            padding: 20px; /* Keep padding so images aren't right against the edge */
+            background-color: #ffffff;
+            color: #333333;
+            text-align: center; /* Center content within the body padding */
+        }
+        h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        #loadingMessage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding-top: 100px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0960fa;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Updated Styling for Image Container --- */
+        #imageContainer {
+            /* display: none; */ /* JS handles hiding/showing this */
+            display: flex; /* Use flexbox */
+            flex-direction: column; /* Stack images vertically */
+            align-items: center; /* Center images horizontally within the container */
+            gap: 20px; /* Space between images */
+            max-width: 800px; /* Optional: Limit container width */
+            margin: 0 auto; /* Center the container on the page */
+            /* Ensure it's initially hidden - JS will make it 'flex' or 'block' on load */
+        }
+         /* Ensure imageContainer is hidden until loaded, override display:flex above initially */
+        body #imageContainer:not(.visible-on-load) {
+             display: none !important;
+        }
+
+
+        /* --- Updated Styling for Images --- */
+        img {
+            max-width: 100%;
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Required for max-width to work correctly */
+            border: 1px solid #ccc; /* Add border */
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Add shadow */
+            /* Remove margin-bottom or set to 0, as gap on container handles spacing */
+            margin-bottom: 0;
+        }
+
+        /* Remove the old border/padding rules for images */
+        /*
+        #imageContainer img:not(:last-child) {
+          border-bottom: 3px solid #cccccc;
+          padding-bottom: 10px;
+          margin-bottom: 10px;
+        }
+        #imageContainer img:last-child {
+            margin-bottom: 10px;
+        }
+        */
+
+    </style>
+</head>
+<body>
+
+    <div id="loadingMessage">
+        <div class="spinner"></div>
+        <div>Loading report images...</div>
+    </div>
+
+    <div id="imageContainer">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page1.png" alt="AIGS Report Page 1">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page2.png" alt="AIGS Report Page 2">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page3.png" alt="AIGS Report Page 3">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page4.png" alt="AIGS Report Page 4">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page5.png" alt="AIGS Report Page 5">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page6.png" alt="AIGS Report Page 6">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page7.png" alt="AIGS Report Page 7">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page8.png" alt="AIGS Report Page 8">
+        <img src="https://raw.githubusercontent.com/synergynexuz/Reports/main/AIGS_page9.png" alt="AIGS Report Page 9">
+            </div>
+
+    <script>
+        window.addEventListener('load', function () {
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('imageContainer').style.display = 'flex'; // Change to 'flex' to match CSS
+            document.getElementById('imageContainer').classList.add('visible-on-load'); // Add class to show it
+        });
+    </script>
+
+</body>
+</html>
